@@ -9,7 +9,7 @@ def get_optionvar(var, type='iv'):
     with open(pref_file) as f:
         for line in f.readlines():
             match = re.search(
-                '(?<=\s-{type}\s"{var}"\s)(?P<value>.*)'.format(type=type, var=var), line)
+                '(?<=\s-{type}\s"{var}"\s)(?P<value>[^;\n]*)'.format(type=type, var=var), line)
             if match:
                 value = match.group('value').strip('"')
                 values.append(value)
@@ -18,8 +18,6 @@ def get_optionvar(var, type='iv'):
         values = values[0]
     return values
 
-# get_optionvar('ScriptEditorExecuterLabelArray','sva')
-# get_optionvar('ScriptEditorExecuterTabIndex','iv')
 
 def save_tabs():
     cmd = '''
@@ -37,15 +35,12 @@ def load_tabs():
     global string $gCommandExecuterName[];
     global string $gCommandExecuterType[];
 
-    global string $gLastFocusedCommandExecuter;
-    global string $gLastFocusedCommandControl;
-
     global string $gCommandExecuterTabs;
 
     deleteUI `tabLayout -q -ca $gCommandExecuterTabs`;
 
+    python("from syncScriptEditor import get_optionvar");
     $gCommandExecuterName=python("get_optionvar('ScriptEditorExecuterLabelArray','sva')");
-
 
     $gCommandExecuterType=python("get_optionvar('ScriptEditorExecuterTypeArray','sva')");
 
@@ -60,3 +55,35 @@ def load_tabs():
 
     '''
     mel.eval(cmd)
+
+
+def add_script_editor_toolbar():
+    # this is the last contorl on script editor tool bar
+    goto_btn = mc.iconTextButton(
+        'scriptEditorToolbarGotoLineButton', q=1, fullPathName=1)
+    flow_layout = re.search('.*(?=\|)', goto_btn).group()
+
+    for x in reversed(mc.layout(flow_layout, q=1, ca=1)):
+        if x == 'scriptEditorToolbarGotoLineButton':
+            break
+        else:
+            mc.deleteUI(x)
+
+    mc.setParent(flow_layout)
+
+    iconSize = 23
+    mc.separator(height=iconSize, horizontal=0, style='single')
+
+    mc.iconTextButton(
+        width=iconSize, height=iconSize,
+        annotation='save tabs',
+        image="save.png",
+        c=lambda *x: save_tabs()
+    )
+
+    mc.iconTextButton(
+        width=iconSize, height=iconSize,
+        annotation='load tabs',
+        image="refresh.png",
+        c=lambda *x: load_tabs()
+    )
