@@ -32,7 +32,6 @@ def save_tabs():
 
 def load_tabs():
     cmd = '''
-    {
     global string $gCommandExecuterName[];
     global string $gCommandExecuterType[];
 
@@ -44,7 +43,8 @@ def load_tabs():
     $gCommandExecuterName=python("get_optionvar('ScriptEditorExecuterLabelArray','sva')");
 
     $gCommandExecuterType=python("get_optionvar('ScriptEditorExecuterTypeArray','sva')");
-
+    
+    {
     int $len = size($gCommandExecuterName);
     int $i;
     for ($i = 0; $i < $len; ++$i) {
