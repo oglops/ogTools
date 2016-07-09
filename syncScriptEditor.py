@@ -32,6 +32,7 @@ def save_tabs():
 
 def load_tabs():
     cmd = '''
+    {
     global string $gCommandExecuterName[];
     global string $gCommandExecuterType[];
 
@@ -52,6 +53,7 @@ def load_tabs():
 
     int $prevIdx = python("get_optionvar('ScriptEditorExecuterTabIndex','iv')");
     tabLayout -e -selectTabIndex $prevIdx $gCommandExecuterTabs;
+    }
 
     '''
     mel.eval(cmd)
